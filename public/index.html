@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVC Shop & Book - ระบบจัดการร้านค้า</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css?v=3">
+
+    <style>
+        body, button, input, textarea, select {
+            font-family: 'Kanit', sans-serif !important;
+        }
+    </style>
+</head>
+<body>
+    <svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
+        <linearGradient id="logo-grad" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#10b981" />
+        </linearGradient>
+    </svg>
+
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo" id="main-logo" title="ดับเบิลคลิก 5 ครั้งเพื่อเข้าสู่โหมดผู้ดูแลระบบ">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="16" width="8" height="12" rx="2" fill="url(#logo-grad)" />
+                    <rect x="12" y="8" width="8" height="20" rx="2" fill="url(#logo-grad)" />
+                    <rect x="20" y="2" width="8" height="26" rx="2" fill="url(#logo-grad)" opacity="0.8" />
+                </svg>
+                NVC SHOP & BOOK
+            </a>
+            
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <nav class="nav-links">
+                    <button class="btn btn-ghost active" id="nav-home" onclick="app.navigateTo('#/')">
+                        หน้าแรก
+                    </button>
+                    <div id="user-badge-container" style="display: flex; align-items: center; gap: 8px;"></div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="view-home" class="view active">
+            <div class="hero-section">
+                <h1 class="hero-title">ยินดีต้อนรับสู่ NVC SHOP & BOOK</h1>
+                <p class="hero-desc">ระบบสั่งซื้อสินค้าและจัดการข้อมูลของวิทยาลัยอาชีวศึกษานครปฐม รวบรวมอุปกรณ์การเรียนและสินค้าที่ตอบโจทย์ทุกความต้องการ</p>
+            </div>
+            
+            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="section-title" style="margin-bottom: 0;">สินค้าทั้งหมด</h2>
+                <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;" onclick="app.manualRefresh()">
+                    <span style="font-size: 12px;">🔄</span> รีเฟรชข้อมูล
+                </button>
+            </div>
+            
+            <div class="cards-grid" id="products-grid">
+                </div>
+        </section>
+
+        <section id="view-detail" class="view">
+            <button class="btn btn-secondary" style="margin-bottom: 24px;" onclick="app.navigateTo('#/')">
+                ⬅️ กลับหน้าแรก
+            </button>
+            
+            <div class="detail-grid" id="detail-container">
+                </div>
+        </section>
+
+        <section id="view-admin-login" class="view">
+            <div class="auth-panel">
+                <h2>เข้าสู่ระบบผู้ดูแลระบบ</h2>
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label for="admin-password">รหัสผ่านผู้ดูแลระบบ</label>
+                    <input type="password" id="admin-password" class="form-input" placeholder="••••••••" onkeydown="if(event.key === 'Enter') app.loginAdmin()">
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="app.loginAdmin()">
+                    เข้าสู่ระบบ
+                </button>
+                <button class="btn btn-ghost" style="width: 100%; margin-top: 10px; justify-content: center;" onclick="app.showView('home')">
+                    ยกเลิก
+                </button>
+            </div>
+        </section>
+
+        <section id="view-admin-dashboard" class="view">
+            <div class="admin-layout">
+                <div class="admin-header">
+                    <h2>แผงควบคุมระบบ (Admin Panel)</h2>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="app.showView('home')">กลับหน้าหลัก</button>
+                        <button class="btn btn-primary" style="background-color: var(--danger); box-shadow: none;" onclick="app.logoutAdmin()">ออกจากระบบ</button>
+                    </div>
+                </div>
+
+                <div class="admin-grid">
+                    <div class="admin-card">
+                        <h3>เพิ่มสินค้าใหม่</h3>
+                        <form id="add-product-form" onsubmit="app.handleNewProduct(event)">
+                            <div class="form-group">
+                                <label for="prod-name">ชื่อสินค้า *</label>
+                                <input type="text" id="prod-name" class="form-input" required placeholder="เช่น iPhone 16 Pro Max 256GB">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="prod-category">หมวดหมู่</label>
+                                    <input type="text" id="prod-category" class="form-input" placeholder="เช่น ไอที, อุปกรณ์การเรียน">
+                                </div>
+                                <div class="form-group">
+                                    <label for="prod-stock">จำนวนสต็อก *</label>
+                                    <input type="number" id="prod-stock" class="form-input" min="1" required value="5">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="prod-price">ราคาสินค้า (บาท) *</label>
+                                <input type="number" id="prod-price" class="form-input" min="0" required placeholder="6500">
+                            </div>
+
+                            <div class="form-group">
+                                <label>รูปภาพสินค้า (อัปโหลดได้หลายรูป) *</label>
+                                <div class="upload-area" onclick="document.getElementById('prod-images').click()">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                    <p>คลิกเพื่อเลือกไฟล์</p>
+                                </div>
+                                <input type="file" id="prod-images" multiple accept="image/*" style="display: none;" onchange="app.handleImageUpload(event)">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                                ➕ เพิ่มสินค้า
+                            </button>
+                        </form>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <div class="admin-card">
+                            <h3>การจัดการฐานข้อมูล</h3>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                                คุณสามารถส่งออกข้อมูลเป็นไฟล์ JSON หรือนำเข้าไฟล์ข้อมูลที่บันทึกไว้เพื่อจัดการระบบได้
+                            </p>
+                            <div class="database-actions">
+                                <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="app.exportDatabase()">
+                                    💾 ส่งออกข้อมูล JSON (Export)
+                                </button>
+                                
+                                <div style="margin-top: 12px;">
+                                    <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="document.getElementById('import-file-input').click()">
+                                        📂 นำเข้าข้อมูล JSON (Import)
+                                    </button>
+                                    <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="app.importDatabase(event)">
+                                </div>
+                                
+
+                            </div>
+                        </div>
+                        
+                        <div class="admin-card">
+                            <h3>Google Sheets (เชื่อมต่ออัตโนมัติ)</h3>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary);">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
+                                เชื่อมต่อฐานข้อมูลแบบเรียลไทม์โดยอัตโนมัติ
+                            </div>
+                            <a href="https://docs.google.com/spreadsheets/d/1rHJczpoN2nJy_MwO3jScTFsOf7lstIzIHC1SNUGL-pg/edit?usp=sharing" target="_blank" class="btn btn-secondary" style="width: 100%; justify-content: center; text-decoration: none; border-color: var(--secondary); color: var(--secondary); background: transparent;">
+                                📊 เปิดดู Google Sheets Database
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-top: 24px;">
+                    <h3>รายการสินค้าและการจัดการ</h3>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>รูปภาพ</th>
+                                    <th>ชื่อสินค้า</th>
+                                    <th>ราคา</th>
+                                    <th>สถานะ</th>
+                                    <th>สต็อก</th>
+                                    <th>ขายแล้ว (ชิ้น)</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-product-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-top: 24px;">
+                    <h3>ประวัติการทำงานและกิจกรรม (Activity Logs)</h3>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>เวลา</th>
+                                    <th>ชื่อสินค้า</th>
+                                    <th>ผู้ใช้งาน</th>
+                                    <th>เหตุการณ์</th>
+                                    <th>รายละเอียด</th>
+                                    <th>จำนวน</th>
+                                    <th>สถานะ</th>
+                                    <th>เพิ่มเติม</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-logs-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="auth-modal" class="modal-backdrop">
+        <div class="register-panel" style="max-width: 420px; position: relative;">
+            <span class="toast-close" style="position: absolute; top: 16px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary);" onclick="app.closeAuthModal()">×</span>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login-btn" onclick="app.switchAuthTab('login')">เข้าสู่ระบบ</button>
+                <button class="auth-tab" id="tab-register-btn" onclick="app.switchAuthTab('register')">สมัครสมาชิก</button>
+            </div>
+
+            <div id="auth-login-content" class="auth-panel-content active">
+                <p style="margin-bottom: 20px; font-size: 13px; color: var(--text-secondary);">กรุณากรอกข้อมูลของคุณเพื่อเข้าสู่ระบบ</p>
+                <form id="login-form" onsubmit="app.handleLoginSubmit(event)">
+                    <div class="form-group">
+                        <label for="login-username">ชื่อผู้ใช้ หรือ อีเมล *</label>
+                        <input type="text" id="login-username" class="form-input auth-input-username" required placeholder="เช่น user123, user@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">รหัสผ่าน *</label>
+                        <input type="password" id="login-password" class="form-input auth-input-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 16px; background-color: var(--secondary); box-shadow: 0 4px 14px var(--secondary-glow);">
+                        🔒 เข้าสู่ระบบ
+                    </button>
+                </form>
+            </div>
+
+            <div id="auth-register-content" class="auth-panel-content">
+                <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">กรอกข้อมูลด้านล่างเพื่อสร้างบัญชีผู้ใช้งานใหม่</p>
+                <form id="register-form" onsubmit="app.handleRegisterSubmit(event)">
+                    <div class="avatar-selection-wrapper">
+                        <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 100%; text-align: left;">เลือกรูปโปรไฟล์ของคุณ *</label>
+                        
+                        <div class="avatar-preview-container">
+                            <img id="reg-avatar-preview" class="avatar-preview-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230ea5e9'><circle cx='12' cy='12' r='12'/><path d='M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 10c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z' fill='white'/></svg>" alt="Avatar Preview">
+                        </div>
+
+                        <div class="avatar-presets-grid" id="avatar-presets-list">
+                            </div>
+
+                        <button type="button" class="avatar-upload-btn" onclick="document.getElementById('register-avatar-file').click()">
+                            📸 อัปโหลดรูปภาพของตัวเอง
+                        </button>
+                        <input type="file" id="register-avatar-file" style="display:none;" accept="image/*" onchange="app.handleAvatarFileChange(event)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-username">ชื่อผู้ใช้งาน (Username) *</label>
+                        <input type="text" id="reg-username" class="form-input auth-input-username" required placeholder="เช่น user123" maxlength="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reg-email">อีเมล (Email) *</label>
+                        <input type="email" id="reg-email" class="form-input auth-input-email" required placeholder="เช่น user@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-password">รหัสผ่าน (Password) *</label>
+                        <input type="password" id="reg-password" class="form-input auth-input-password" required placeholder="ตั้งรหัสผ่านอย่างน้อย 4 ตัวอักษร" minlength="4">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;">
+                        ✨ สมัครสมาชิกเลย
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-backdrop">
+        <div class="register-panel" style="max-width: 400px; text-align: center;">
+            <h2 id="confirm-title">ยืนยันการดำเนินการ</h2>
+            <p id="confirm-message" style="margin-top: 10px; margin-bottom: 24px;">คุณแน่ใจหรือไม่ที่จะดำเนินการนี้?</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="confirm-cancel-btn" class="btn btn-secondary" style="flex: 1; justify-content: center;">ยกเลิก</button>
+                <button id="confirm-ok-btn" class="btn btn-primary" style="flex: 1; justify-content: center;">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/db.js?v=3"></script>
+    <script src="js/network.js?v=3"></script>
+    <script src="js/bot.js?v=3"></script>
+    <script src="js/renderer.js?v=3"></script>
+    <script src="js/app.js?v=3"></script>
+</body>
+</html>
