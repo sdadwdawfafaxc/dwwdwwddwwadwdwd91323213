@@ -207,39 +207,6 @@ window.db = {
     resetLocalDatabase() {
         localStorage.setItem('nvc_shop_db_initialized', 'true');
         const defaultProducts = [
-            {
-                id: 'prod_1',
-                name: 'Keychron Q1 Max Mechanical Keyboard',
-                category: 'ไอที',
-                description: 'คีย์บอร์ดกลไกไร้สายขนาด 75% โครงสร้างอลูมิเนียม CNC ระดับพรีเมียม สวิตช์ถอดเปลี่ยนได้แบบ Hot-swappable เชื่อมต่อไร้สาย 2.4GHz และ Bluetooth 5.1 สภาพมือหนึ่ง กล่องครบ ประกันศูนย์ 1 ปี',
-                price: 6590,
-                stock: 5,
-                images: [`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%233b82f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="white" font-weight="bold">Keychron Q1 Max</text></svg>`],
-                status: 'available',
-                orders: []
-            },
-            {
-                id: 'prod_2',
-                name: 'Sony WH-1000XM5 Wireless Headphones',
-                category: 'เครื่องเสียง',
-                description: 'หูฟังไร้สายครอบหูระดับเรือธง พร้อมระบบตัดเสียงรบกวนที่ดีที่สุดในวงการ แบตเตอรี่ใช้งานยาวนาน 30 ชั่วโมง รองรับเสียงความละเอียดสูง LDAC สภาพสวย 99% อุปกรณ์ครบกล่อง',
-                price: 11990,
-                stock: 3,
-                images: [`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%2310b981"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="white" font-weight="bold">Sony WH-1000XM5</text></svg>`],
-                status: 'available',
-                orders: []
-            },
-            {
-                id: 'prod_3',
-                name: 'iPad Air M2 (11-inch, 128GB)',
-                category: 'ไอที',
-                description: 'แท็บเล็ตทรงพลังชิป M2 ทำงานและเล่นเกมได้อย่างลื่นไหล หน้าจอ Liquid Retina ถนอมสายตา รองรับ Apple Pencil Pro สี Space Gray เครื่องใหม่ไม่แกะกล่อง ประกันศูนย์ไทยเต็มปี',
-                price: 23900,
-                stock: 2,
-                images: [`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%238b5cf6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="white" font-weight="bold">iPad Air M2</text></svg>`],
-                status: 'available',
-                orders: []
-            }
         ];
         this.saveLocalProducts(defaultProducts);
         return defaultProducts;
