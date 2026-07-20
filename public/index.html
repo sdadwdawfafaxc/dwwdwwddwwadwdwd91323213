@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NVC Shop & Book - ระบบจัดการร้านค้า</title>
-    
+    <title>NVC SHOP - ระบบจัดการร้านค้า</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -33,7 +34,7 @@
                     <rect x="12" y="8" width="8" height="20" rx="2" fill="url(#logo-grad)" />
                     <rect x="20" y="2" width="8" height="26" rx="2" fill="url(#logo-grad)" opacity="0.8" />
                 </svg>
-                NVC SHOP & BOOK
+                NVC SHOP
             </a>
             
             <div style="display: flex; align-items: center; gap: 20px;">
@@ -50,7 +51,7 @@
     <main>
         <section id="view-home" class="view active">
             <div class="hero-section">
-                <h1 class="hero-title">ยินดีต้อนรับสู่ NVC SHOP & BOOK</h1>
+                <h1 class="hero-title">ยินดีต้อนรับสู่ NVC SHOP</h1>
                 <p class="hero-desc">ระบบสั่งซื้อสินค้าและจัดการข้อมูลของวิทยาลัยอาชีวศึกษานครปฐม รวบรวมอุปกรณ์การเรียนและสินค้าที่ตอบโจทย์ทุกความต้องการ</p>
             </div>
             
@@ -126,12 +127,18 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="prod-desc">รายละเอียดสินค้า *</label>
+                                <textarea id="prod-desc" class="form-input" required placeholder="กรอกรายละเอียดสินค้า..."></textarea>
+                            </div>
+
+                            <div class="form-group">
                                 <label>รูปภาพสินค้า (อัปโหลดได้หลายรูป) *</label>
                                 <div class="upload-area" onclick="document.getElementById('prod-images').click()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                                     <p>คลิกเพื่อเลือกไฟล์</p>
                                 </div>
-                                <input type="file" id="prod-images" multiple accept="image/*" style="display: none;" onchange="app.handleImageUpload(event)">
+                                <input type="file" id="prod-images" multiple accept="image/*" style="display: none;" onchange="app.handleImageSelection(event)">
+                                <div class="upload-thumbs" id="upload-thumbs-container"></div>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
                                 ➕ เพิ่มสินค้า
@@ -167,7 +174,14 @@
                                 <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
                                 เชื่อมต่อฐานข้อมูลแบบเรียลไทม์โดยอัตโนมัติ
                             </div>
-                            <a href="https://docs.google.com/spreadsheets/d/1rHJczpoN2nJy_MwO3jScTFsOf7lstIzIHC1SNUGL-pg/edit?usp=sharing" target="_blank" class="btn btn-secondary" style="width: 100%; justify-content: center; text-decoration: none; border-color: var(--secondary); color: var(--secondary); background: transparent;">
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label for="sheets-url-input" style="font-size: 12px;">ตั้งค่า Google Sheets API URL *</label>
+                                <input type="text" id="sheets-url-input" class="form-input" placeholder="https://script.google.com/macros/s/.../exec" style="font-size: 12px; padding: 8px 12px;">
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 12px; font-size: 13px; padding: 8px 16px;" onclick="app.saveSheetsUrl()">
+                                💾 บันทึกการตั้งค่าสเปรดชีต
+                            </button>
+                            <a href="https://docs.google.com/spreadsheets/d/1rHJczpoN2nJy_MwO3jScTFsOf7lstIzIHC1SNUGL-pg/edit?usp=sharing" target="_blank" class="btn btn-secondary" style="width: 100%; justify-content: center; text-decoration: none; border-color: var(--secondary); color: var(--secondary); background: transparent; font-size: 13px; padding: 8px 16px;">
                                 📊 เปิดดู Google Sheets Database
                             </a>
                         </div>
@@ -203,12 +217,12 @@
                                 <tr>
                                     <th>เวลา</th>
                                     <th>ชื่อสินค้า</th>
-                                    <th>ผู้ใช้งาน</th>
-                                    <th>เหตุการณ์</th>
-                                    <th>รายละเอียด</th>
+                                    <th>ผู้ใช้งาน (ชื่อจริง)</th>
+                                    <th>ข้อมูลติดต่อ</th>
+                                    <th>ประเภทรายการ</th>
                                     <th>จำนวน</th>
                                     <th>สถานะ</th>
-                                    <th>เพิ่มเติม</th>
+                                    <th>จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-logs-table-body">
@@ -249,30 +263,9 @@
             <div id="auth-register-content" class="auth-panel-content">
                 <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">กรอกข้อมูลด้านล่างเพื่อสร้างบัญชีผู้ใช้งานใหม่</p>
                 <form id="register-form" onsubmit="app.handleRegisterSubmit(event)">
-                    <div class="avatar-selection-wrapper">
-                        <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 100%; text-align: left;">เลือกรูปโปรไฟล์ของคุณ *</label>
-                        
-                        <div class="avatar-preview-container">
-                            <img id="reg-avatar-preview" class="avatar-preview-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230ea5e9'><circle cx='12' cy='12' r='12'/><path d='M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 10c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z' fill='white'/></svg>" alt="Avatar Preview">
-                        </div>
-
-                        <div class="avatar-presets-grid" id="avatar-presets-list">
-                            </div>
-
-                        <button type="button" class="avatar-upload-btn" onclick="document.getElementById('register-avatar-file').click()">
-                            📸 อัปโหลดรูปภาพของตัวเอง
-                        </button>
-                        <input type="file" id="register-avatar-file" style="display:none;" accept="image/*" onchange="app.handleAvatarFileChange(event)">
-                    </div>
-
                     <div class="form-group">
                         <label for="reg-username">ชื่อผู้ใช้งาน (Username) *</label>
                         <input type="text" id="reg-username" class="form-input auth-input-username" required placeholder="เช่น user123" maxlength="20">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="reg-email">อีเมล (Email) *</label>
-                        <input type="email" id="reg-email" class="form-input auth-input-email" required placeholder="เช่น user@example.com">
                     </div>
 
                     <div class="form-group">

@@ -139,6 +139,10 @@ class ShopApp {
             if (this.isAdminLoggedIn) {
                 document.getElementById('view-admin-dashboard').classList.add('active');
                 this.handleDatabaseChangedExternal();
+                setTimeout(() => {
+                    const input = document.getElementById('sheets-url-input');
+                    if (input) input.value = window.db.getSheetsUrl();
+                }, 100);
             } else {
                 document.getElementById('view-admin-login').classList.add('active');
             }
@@ -336,14 +340,23 @@ class ShopApp {
         }
     }
 
+    async manualRefresh() {
+        this.showToast('รีเฟรชข้อมูล', 'กำลังปรับปรุงข้อมูลร้านค้าล่าสุดจากเซิร์ฟเวอร์...', 'info', 1500);
+        try {
+            await this.handleDatabaseChangedExternal(null, true);
+            this.showToast('สำเร็จ', 'อัปเดตข้อมูลสินค้าเรียบร้อยแล้ว', 'success');
+        } catch (e) {
+            this.showToast('ล้มเหลว', `ไม่สามารถเชื่อมต่อข้อมูลได้: ${e.message}`, 'danger');
+        }
+    }
+
     async handleRegisterSubmit(event) {
         event.preventDefault();
         const username = document.getElementById('reg-username').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
         const password = document.getElementById('reg-password').value;
 
-        if (!username || !email || !password) {
-            this.showToast('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุข้อมูลในฟิลด์บังคับให้ครบถ้วน', 'warning');
+        if (!username || !password) {
+            this.showToast('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุชื่อผู้ใช้งานและรหัสผ่าน', 'warning');
             return;
         }
 
@@ -357,16 +370,16 @@ class ShopApp {
 
         const userData = {
             username,
-            email,
+            email: '',
             password,
-            avatar: this.selectedAvatar
+            avatar: this.avatarPresets[0]
         };
 
         const result = await window.network.sendRegisterUser(userData);
 
         if (result && result.success) {
             // Auto log in after registration
-            window.db.saveUserSession(username, email, this.selectedAvatar);
+            window.db.saveUserSession(username, '', this.avatarPresets[0]);
             this.username = username;
 
             this.updateUserBadge();
@@ -375,7 +388,6 @@ class ShopApp {
 
             // Clear input fields
             document.getElementById('reg-username').value = '';
-            document.getElementById('reg-email').value = '';
             document.getElementById('reg-password').value = '';
             
             this.handleDatabaseChangedExternal(this.activeDetailId, false);
@@ -608,6 +620,15 @@ class ShopApp {
     }
 
     // --- DB ACTIONS ---
+    saveSheetsUrl() {
+        const input = document.getElementById('sheets-url-input');
+        if (!input) return;
+        const url = input.value.trim();
+        window.db.saveSheetsUrl(url);
+        this.showToast('บันทึกสำเร็จ', 'อัปเดต URL ของ Google Sheets เรียบร้อยแล้ว ระบบกำลังดึงข้อมูลใหม่...', 'success');
+        this.handleDatabaseChangedExternal(null, true);
+    }
+
     exportDatabase() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.products, null, 2));
         const downloadAnchor = document.createElement('a');

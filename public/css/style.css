@@ -914,6 +914,10 @@ main {
     border-left: 4px solid var(--accent);
 }
 
+.toast.danger {
+    border-left: 4px solid var(--danger);
+}
+
 .toast-content {
     flex-grow: 1;
 }

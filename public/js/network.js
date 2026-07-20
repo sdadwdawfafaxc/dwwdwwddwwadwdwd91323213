@@ -41,10 +41,14 @@ window.network = {
         if (sheetsUrl && sheetsUrl.trim() !== '') {
             try {
                 const res = await this.callSheets('registerUser', { user });
+                if (res && res.error && res.error.includes('Unknown action')) {
+                    console.warn("Outdated Apps Script webapp, falling back to local DB registration.");
+                    return window.db.registerLocalUser(user);
+                }
                 return res;
             } catch (e) {
-                console.error("Sheets register user failed:", e);
-                return { error: `ไม่สามารถเชื่อมต่อ Google Sheets ได้: ${e.message}` };
+                console.error("Sheets register user failed, falling back to local DB:", e);
+                return window.db.registerLocalUser(user);
             }
         } else {
             return window.db.registerLocalUser(user);
@@ -56,10 +60,14 @@ window.network = {
         if (sheetsUrl && sheetsUrl.trim() !== '') {
             try {
                 const res = await this.callSheets('loginUser', { username, password });
+                if (res && res.error && res.error.includes('Unknown action')) {
+                    console.warn("Outdated Apps Script webapp, falling back to local DB login.");
+                    return window.db.loginLocalUser(username, password);
+                }
                 return res;
             } catch (e) {
-                console.error("Sheets login user failed:", e);
-                return { error: `ไม่สามารถเชื่อมต่อ Google Sheets ได้: ${e.message}` };
+                console.error("Sheets login user failed, falling back to local DB:", e);
+                return window.db.loginLocalUser(username, password);
             }
         } else {
             return window.db.loginLocalUser(username, password);

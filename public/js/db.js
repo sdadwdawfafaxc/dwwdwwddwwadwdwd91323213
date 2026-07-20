@@ -47,7 +47,16 @@ window.db = {
                 const res = await fetch(`${sheetsUrl}?action=readAll`);
                 if (res.ok) {
                     const data = await res.json();
-                    if (data && data.products) {
+                    if (data && Array.isArray(data.products)) {
+                        // If database is empty on Google Sheets, seed default products
+                        if (data.products.length === 0) {
+                            const defaultProds = this.resetLocalDatabase();
+                            if (window.network && window.network.callSheets) {
+                                window.network.callSheets('resetDatabase', { defaultProducts: defaultProds }).catch(e => console.error("Auto seed error:", e));
+                            }
+                            return defaultProds;
+                        }
+
                         // Map flat products and orders into the nested products object
                         const ordersMap = {};
                         (data.orders || []).forEach(o => {
@@ -294,7 +303,7 @@ window.db = {
         if (users.some(u => u.username.toLowerCase() === user.username.toLowerCase())) {
             return { error: 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว' };
         }
-        if (users.some(u => u.email.toLowerCase() === user.email.toLowerCase())) {
+        if (user.email && user.email.trim() !== '' && users.some(u => u.email && u.email.toLowerCase() === user.email.toLowerCase())) {
             return { error: 'อีเมลนี้ถูกใช้งานแล้ว' };
         }
         users.push({
